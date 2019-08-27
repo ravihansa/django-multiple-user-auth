@@ -1,0 +1,5 @@
+djangorestframework
+mysqlclient
+django-cors-headers
+django[bcrypt]
+djangorestframework-jwt
