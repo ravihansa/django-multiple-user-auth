@@ -4,6 +4,7 @@ from rest_framework_jwt.settings import api_settings
 from django.http import HttpResponse
 from django.shortcuts import render
 from .serializers import UserSerializer, MerchantSerializer, UserProfileSerializer
+from permission.permissions import IsCustomer, IsMerchant
 from .models import User
 import bcrypt
 import json
@@ -109,8 +110,23 @@ class UserPasswordChangeView(views.APIView):
         return bcrypt.gensalt()
 
 
-class UserProfileview(views.APIView):
-    permission_classes = (IsAuthenticated,)
+class CustomerProfileview(views.APIView):
+    permission_classes = (IsAuthenticated, IsCustomer)
+
+    def get(self, request):
+        user = request.user
+        queryset = User.objects.filter(id=user.id)
+        serializer = UserProfileSerializer(queryset, many=True)
+        user = serializer.data
+        return HttpResponse(
+            json.dumps({"data": user}),
+            status=200,
+            content_type="application/json",
+        )
+
+
+class MerchantProfileview(views.APIView):
+    permission_classes = (IsAuthenticated, IsMerchant)
 
     def get(self, request):
         user = request.user
